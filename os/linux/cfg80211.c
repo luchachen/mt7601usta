@@ -1085,14 +1085,15 @@ static int CFG80211_OpsConnect(
 		Chan = ieee80211_frequency_to_channel(pChannel->center_freq);
 
 	Groupwise = pSme->crypto.cipher_group;
-	for(Idx=0; Idx<pSme->crypto.n_ciphers_pairwise; Idx++)
-		Pairwise |= pSme->crypto.ciphers_pairwise[Idx];
+	//for(Idx=0; Idx<pSme->crypto.n_ciphers_pairwise; Idx++)
+        Pairwise = pSme->crypto.ciphers_pairwise[0];
 	/* End of for */
 
-	for(Idx=0; Idx<pSme->crypto.n_akm_suites; Idx++)
-		Keymgmt |= pSme->crypto.akm_suites[Idx];
+	//for(Idx=0; Idx<pSme->crypto.n_akm_suites; Idx++)
+        Keymgmt = pSme->crypto.akm_suites[0];
 	/* End of for */
 
+	CFG80211DBG(RT_DEBUG_ERROR, ("80211> %s ==> 0x%x\n", __FUNCTION__, Keymgmt));
 	WpaVersion = pSme->crypto.wpa_versions;
 
 	memset(&ConnInfo, 0, sizeof(ConnInfo));
@@ -1103,7 +1104,7 @@ static int CFG80211_OpsConnect(
 	else
 		ConnInfo.WpaVer = 0;
 
-	if (Keymgmt & WLAN_AKM_SUITE_8021X)
+	if (Keymgmt == WLAN_AKM_SUITE_8021X)
 		ConnInfo.FlgIs8021x = TRUE;
 	else
 		ConnInfo.FlgIs8021x = FALSE;
@@ -1113,11 +1114,11 @@ static int CFG80211_OpsConnect(
 	else
 		ConnInfo.FlgIsAuthOpen = TRUE;
 
-	if (Pairwise & WLAN_CIPHER_SUITE_CCMP)
+	if (Pairwise == WLAN_CIPHER_SUITE_CCMP)
 		ConnInfo.PairwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_CCMP;
-	else if (Pairwise & WLAN_CIPHER_SUITE_TKIP)
+	else if (Pairwise == WLAN_CIPHER_SUITE_TKIP)
 		ConnInfo.PairwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_TKIP;
-	else if ((Pairwise & WLAN_CIPHER_SUITE_WEP40) ||
+	else if ((Pairwise == WLAN_CIPHER_SUITE_WEP40) ||
 			(Pairwise & WLAN_CIPHER_SUITE_WEP104))
 	{
 		ConnInfo.PairwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_WEP;
@@ -1125,9 +1126,9 @@ static int CFG80211_OpsConnect(
 	else
 		ConnInfo.PairwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_NONE;
 
-	if (Groupwise & WLAN_CIPHER_SUITE_CCMP)
+	if (Groupwise == WLAN_CIPHER_SUITE_CCMP)
 		ConnInfo.GroupwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_CCMP;
-	else if (Groupwise & WLAN_CIPHER_SUITE_TKIP)
+	else if (Groupwise == WLAN_CIPHER_SUITE_TKIP)
 		ConnInfo.GroupwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_TKIP;
 	else
 		ConnInfo.GroupwiseEncrypType |= RT_CMD_80211_CONN_ENCRYPT_NONE;

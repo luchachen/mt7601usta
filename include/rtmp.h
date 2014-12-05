@@ -3493,7 +3493,21 @@ struct _RTMP_ADAPTER {
 	RALINK_TIMER_STRUCT ed_timer;
 	BOOLEAN ed_timer_inited;
 #endif /* ED_MONITOR */
-
+#ifdef RT_CFG80211_SUPPORT
+        UINT32 Cfg80211ProbeReqCount;
+        BOOLEAN Cfg80211RegisterProbeReqFrame;
+        UINT32 Cfg80211ActionCount;
+        BOOLEAN Cfg80211RegisterActionFrame;
+        BOOLEAN TxStatusInUsed;
+        USHORT TxStatusSeq;
+        PVOID pTxStatusBuf;
+        ULONG TxStatusBufLen;
+        PVOID pCfg80211ChanList;
+        ULONG Cfg80211ChanListLan;
+        PVOID pCfg80211RrobeRsp;
+        RALINK_TIMER_STRUCT Cfg80211RemainOnChannelDurationTimer;
+        ULONG Cfg80211AssocRspLen;
+#endif /* RT_CFG80211_SUPPORT */
 };
 
 
@@ -4700,6 +4714,14 @@ VOID    WpaSendEapolStart(
 
 #endif /* CONFIG_STA_SUPPORT */
 
+#ifdef RT_CFG80211_SUPPORT
+VOID RemainOnChannelTimeout(
+	IN PVOID SystemSpecific1,
+	IN PVOID FunctionContext,
+	IN PVOID SystemSpecific2,
+	IN PVOID SystemSpecific3);
+#endif /* RT_CFG80211_SUPPORT */
+
 
 
 BOOLEAN RTMPFreeTXDUponTxDmaDone(
@@ -5137,6 +5159,14 @@ VOID StateMachineInit(
 	IN ULONG InitState, 
 	IN ULONG Base);
 
+#if 0
+#define StateMachineInit(Sm,Trans,StNr,MsgNr,DefFunc,InitState, Base) \
+    do { \
+       printk("%s Sm:0x%x, Trans:0x%x \n", __FUNCTION__, Sm, Trans); \
+       StateMachineInit(Sm,Trans,StNr,MsgNr,DefFunc,InitState, Base); \
+    } while(false)
+#endif
+
 VOID StateMachineSetAction(
 	IN STATE_MACHINE *S, 
 	IN ULONG St, 
@@ -5148,6 +5178,15 @@ VOID StateMachinePerformAction(
 	IN STATE_MACHINE *S, 
 	IN MLME_QUEUE_ELEM *Elem,
 	IN ULONG CurrState);
+
+#if 0
+#define StateMachinePerformAction(pAd, S, Elem, CurrState) \
+    do { \
+       printk("%s:%d S:0x%x Trans:0x%x\n", __FUNCTION__, __LINE__, (S), (S)->TransFunc); \
+       StateMachinePerformAction((pAd), (S), (Elem), (CurrState));\
+    } while(false)
+#endif
+      
 
 VOID Drop(
 	IN  PRTMP_ADAPTER   pAd, 

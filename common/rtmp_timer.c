@@ -88,6 +88,10 @@ BUILD_TIMER_FUNCTION(eTxBfProbeTimerExec);
 BUILD_TIMER_FUNCTION(ATEPeriodicExec);
 #endif /* RALINK_ATE */
 
+#ifdef RT_CFG80211_SUPPORT
+BUILD_TIMER_FUNCTION(RemainOnChannelTimeout);
+#endif /* RT_CFG80211_SUPPORT */
+
 #ifdef RTMP_TIMER_TASK_SUPPORT
 static void RtmpTimerQHandle(RTMP_ADAPTER *pAd)
 {

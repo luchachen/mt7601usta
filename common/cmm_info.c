@@ -1080,7 +1080,7 @@ INT	Set_DebugFunc_Proc(
 	IN PSTRING arg)
 {
 	DBGPRINT_S(RT_DEBUG_TRACE, ("==>%s()\n", __FUNCTION__));
-	RTDebugFunc = simple_strtol(arg, 0, 10);
+	RTDebugFunc = 0;//simple_strtol(arg, 0, 10);
 	DBGPRINT_S(RT_DEBUG_TRACE, ("Set RTDebugFunc = 0x%x\n",__FUNCTION__, RTDebugFunc));
 
 	return TRUE;

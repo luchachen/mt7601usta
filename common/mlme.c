@@ -3234,6 +3234,8 @@ VOID BssTableSsidSort(
 	{
 		BSS_ENTRY *pInBss = &pAd->ScanTab.BssEntry[i];
 		BOOLEAN	bIsHiddenApIncluded = FALSE;
+
+		DBGPRINT(RT_DEBUG_ERROR,("%s:%d  ssid:%s\n", __FUNCTION__, __LINE__, pInBss->Ssid));
 		
 		if ( ((pAd->CommonCfg.bIEEE80211H == 1) && 
 				(pAd->MlmeAux.Channel > 14) && 
@@ -3248,6 +3250,7 @@ VOID BssTableSsidSort(
 		}            
 
 
+		DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 		if ((pInBss->BssType == pAd->StaCfg.BssType) && 
 			(SSID_EQUAL(Ssid, SsidLen, pInBss->Ssid, pInBss->SsidLen) || bIsHiddenApIncluded))
 		{
@@ -3293,28 +3296,35 @@ VOID BssTableSsidSort(
 
 
 
+		        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 			/* New for WPA2*/
 			/* Check the Authmode first*/
 			if (pAd->StaCfg.AuthMode >= Ndis802_11AuthModeWPA)
 			{
+		        	DBGPRINT(RT_DEBUG_ERROR,("%s:%d StaCfg.AuthMode:%d pInBss.AuthMode:%d,AuthModeAux:%d\n",
+                                                            __FUNCTION__, __LINE__,pAd->StaCfg.AuthMode, pInBss->AuthMode, pInBss->AuthModeAux));
 				/* Check AuthMode and AuthModeAux for matching, in case AP support dual-mode*/
 				if ((pAd->StaCfg.AuthMode != pInBss->AuthMode) && (pAd->StaCfg.AuthMode != pInBss->AuthModeAux))
 					/* None matched*/
 					continue;
 				
+		        	DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 				/* Check cipher suite, AP must have more secured cipher than station setting*/
 				if ((pAd->StaCfg.AuthMode == Ndis802_11AuthModeWPA) || (pAd->StaCfg.AuthMode == Ndis802_11AuthModeWPAPSK))
 				{
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 					/* If it's not mixed mode, we should only let BSS pass with the same encryption*/
 					if (pInBss->WPA.bMixMode == FALSE)
 						if (pAd->StaCfg.WepStatus != pInBss->WPA.GroupCipher)
 							continue;
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 						
 					/* check group cipher*/
 					if ((pAd->StaCfg.WepStatus < pInBss->WPA.GroupCipher) &&
 						(pInBss->WPA.GroupCipher != Ndis802_11GroupWEP40Enabled) && 
 						(pInBss->WPA.GroupCipher != Ndis802_11GroupWEP104Enabled))
 						continue;
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 
 					/* check pairwise cipher, skip if none matched*/
 					/* If profile set to AES, let it pass without question.*/
@@ -3323,20 +3333,24 @@ VOID BssTableSsidSort(
 						(pAd->StaCfg.WepStatus != pInBss->WPA.PairCipher) && 
 						(pAd->StaCfg.WepStatus != pInBss->WPA.PairCipherAux))
 						continue;						
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 				}
 				else if ((pAd->StaCfg.AuthMode == Ndis802_11AuthModeWPA2) || (pAd->StaCfg.AuthMode == Ndis802_11AuthModeWPA2PSK))
 				{
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 					/* If it's not mixed mode, we should only let BSS pass with the same encryption*/
 					if (pInBss->WPA2.bMixMode == FALSE)
 						if (pAd->StaCfg.WepStatus != pInBss->WPA2.GroupCipher)
 							continue;
 						
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 					/* check group cipher*/
 					if ((pAd->StaCfg.WepStatus < pInBss->WPA.GroupCipher) &&
 						(pInBss->WPA2.GroupCipher != Ndis802_11GroupWEP40Enabled) && 
 						(pInBss->WPA2.GroupCipher != Ndis802_11GroupWEP104Enabled))
 						continue;
 
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 					/* check pairwise cipher, skip if none matched*/
 					/* If profile set to AES, let it pass without question.*/
 					/* If profile set to TKIP, we must find one mateched*/
@@ -3344,6 +3358,7 @@ VOID BssTableSsidSort(
 						(pAd->StaCfg.WepStatus != pInBss->WPA2.PairCipher) && 
 						(pAd->StaCfg.WepStatus != pInBss->WPA2.PairCipherAux))
 						continue;						
+		        	        DBGPRINT(RT_DEBUG_ERROR,("%s:%d \n", __FUNCTION__, __LINE__));
 				}
 			}			
 			/* Bss Type matched, SSID matched. */
@@ -4459,6 +4474,9 @@ BOOLEAN MsgTypeSubst(
  IRQL = PASSIVE_LEVEL
  
  */
+
+#undef StateMachineInit
+
 VOID StateMachineInit(
 	IN STATE_MACHINE *S, 
 	IN STATE_MACHINE_FUNC Trans[], 
@@ -4527,6 +4545,8 @@ VOID StateMachineSetAction(
  IRQL = DISPATCH_LEVEL
  
  */
+
+#undef StateMachinePerformAction
 VOID StateMachinePerformAction(
 	IN	PRTMP_ADAPTER	pAd, 
 	IN STATE_MACHINE *S, 
@@ -4534,6 +4554,10 @@ VOID StateMachinePerformAction(
 	IN ULONG CurrState)
 {
 
+        if (S == NULL || Elem == NULL || S->TransFunc == NULL) {
+	    DBGPRINT(RT_DEBUG_ERROR,("StateMachinePerformAction S->TransFunc == NULL\n"));
+            return;
+        }
 	if (S->TransFunc[(CurrState) * S->NrMsg + Elem->MsgType - S->Base])
 		(*(S->TransFunc[(CurrState) * S->NrMsg + Elem->MsgType - S->Base]))(pAd, Elem);
 }

@@ -160,4 +160,8 @@ DECLARE_TIMER_FUNCTION(eTxBfProbeTimerExec);
 DECLARE_TIMER_FUNCTION(ATEPeriodicExec);
 #endif /* RALINK_ATE */
 
+#ifdef RT_CFG80211_SUPPORT
+DECLARE_TIMER_FUNCTION(RemainOnChannelTimeout);
+#endif
+
 #endif /* __RTMP_TIMER_H__ */

@@ -38,8 +38,47 @@
 #define CFG80211DBG(__Flg, __pMsg)
 #endif /* RT_CFG80211_DEBUG */
 
+BOOLEAN CFG80211DRV_OpsExtraIesSet(VOID *pAdOrg);
+BOOLEAN CFG80211DRV_OpsBeaconSet(
+        VOID                                            *pAdOrg,
+        VOID                                            *pData,
+	BOOLEAN                                          isAdd);
+VOID CFG80211DRV_OpsChangeBssParm(
+        VOID                                            *pAdOrg,
+        VOID                                            *pData);
+INT CFG80211_StaPortSecured(
+	IN VOID                                         *pAdCB,
+	IN UCHAR 					*pMac,
+	IN UINT						flag);
+INT CFG80211_StaPortSecured(
+	IN VOID                                         *pAdCB,
+	IN UCHAR 					*pMac,
+	IN UINT						flag);
+INT CFG80211_ApStaDel(
+	IN VOID                                         *pAdCB,
+	IN UCHAR                                        *pMac);
 
 
+ 
+/*
+    ==========================================================================
+    Description:
+        function to be executed at timer thread when auth timer expires
+        
+
+    ==========================================================================
+ */
+VOID RemainOnChannelTimeout(
+	IN PVOID SystemSpecific1,
+	IN PVOID FunctionContext,
+	IN PVOID SystemSpecific2,
+	IN PVOID SystemSpecific3)
+{
+	//RTMP_ADAPTER *pAd = (RTMP_ADAPTER *) FunctionContext;
+        //TODO
+
+	DBGPRINT(RT_DEBUG_TRACE, ("RemainOnChannel - AuthTimeout\n"));
+}
 
 INT CFG80211DRV_IoctlHandle(
 	IN	VOID					*pAdSrc,
@@ -153,10 +192,14 @@ INT CFG80211DRV_IoctlHandle(
 			break;
 
 		case CMD_RTPRIV_IOCTL_80211_REMAIN_ON_CHAN_SET: 		
-			CFG80211DRV_OpsRemainOnChannel(pAd, pData, Data);					
+                        //TODO chunhua.chen
+			//CFG80211DRV_OpsRemainOnChannel(pAd, pData, Data);					
+			DBGPRINT(RT_DEBUG_ERROR, ("CMD_RTPRIV_IOCTL_80211_REMAIN_ON_CHAN_SET\n"));
 			break;				
 		case CMD_RTPRIV_IOCTL_80211_CANCEL_REMAIN_ON_CHAN_SET:
-			CFG80211DRV_OpsCancelRemainOnChannel(pAd, Data);
+                        //TODO chunhua.chen
+			//CFG80211DRV_OpsCancelRemainOnChannel(pAd, Data);
+			DBGPRINT(RT_DEBUG_ERROR, ("CMD_RTPRIV_IOCTL_80211_CANCEL_REMAIN_ON_CHAN_SET\n"));
 			break;
 
 		case CMD_RTPRIV_IOCTL_80211_MGMT_FRAME_REG:
@@ -414,6 +457,7 @@ INT CFG80211DRV_IoctlHandle(
 static VOID CFG80211DRV_DisableApInterface(
         VOID                                            *pAdOrg)
 {
+#ifdef CONFIG_AP_SUPPORT
 	UINT32 Value;
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
 	pAd->ApCfg.MBSSID[MAIN_MBSSID].bBcnSntReq = FALSE;
@@ -446,7 +490,8 @@ static VOID CFG80211DRV_DisableApInterface(
         /* For RT2870, we need to clear the beacon sync buffer. */
         RTUSBBssBeaconExit(pAd);
 #endif /* RTMP_MAC_USB */
-	
+
+#endif
 }
 
 VOID CFG80211DRV_OpsChangeBssParm(
@@ -706,6 +751,7 @@ BOOLEAN CFG80211DRV_OpsBeaconSet(
 	BOOLEAN                                          isAdd)
 {
 	CFG80211DBG(RT_DEBUG_TRACE, ("80211> CFG80211DRV_OpsBeaconSet ==> %d\n", isAdd));
+#ifdef CONFIG_AP_SUPPORT
         PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdOrg;
         CMD_RTPRIV_IOCTL_80211_BEACON *pBeacon;
         PTXWI_STRUC    pTxWI = &pAd->BeaconTxWI;
@@ -1032,7 +1078,9 @@ BOOLEAN CFG80211DRV_OpsBeaconSet(
         	csr9.field.bBeaconGen = 1;
 	        RTMP_IO_WRITE32(pAd, BCN_TIME_CFG, csr9.word);
 
+#ifdef P2P_SUPPORT
 		pAd->P2pCfg.bSentProbeRSP = TRUE;
+#endif
 
 #ifdef RTMP_MAC_USB
 		/*
@@ -1055,6 +1103,7 @@ BOOLEAN CFG80211DRV_OpsBeaconSet(
 	pAd->StaCfg.WfdCfg.bSuppGoOn = TRUE;
 #endif /* WFD_SUPPORT */
 		
+#endif
 	return TRUE;
 
 }
@@ -1993,11 +2042,13 @@ INT CFG80211_setDefaultKey(
 	PRTMP_ADAPTER pAd = (PRTMP_ADAPTER)pAdCB;
 	CFG80211_CB *p80211CB = pAd->pCfg80211_CB;
 
-        if (p80211CB->pCfg80211_Wdev->iftype == RT_CMD_80211_IFTYPE_AP)
+        if (p80211CB->pCfg80211_Wdev->iftype == NL80211_IFTYPE_AP)
 	//if (pAd->VifNextMode == RT_CMD_80211_IFTYPE_AP)
         {
+#ifdef CONFIG_AP_SUPPORT
 		 printk("Set Ap Default Key: %d\n", Data);
         	pAd->ApCfg.MBSSID[MAIN_MBSSID].DefaultKeyId = Data;
+#endif
         }
         else
 #ifdef CONFIG_STA_SUPPORT

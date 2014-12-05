@@ -416,6 +416,19 @@ typedef struct __CMD_RTPRIV_IOCTL_80211_SURVEY {
 	UINT64 ChannelTimeExtBusy;
 } CMD_RTPRIV_IOCTL_80211_SURVEY;
 
+
+typedef struct __CMD_RTPRIV_IOCTL_80211_BSS_PARM {
+        SHORT use_short_preamble;
+        SHORT use_cts_prot;
+        SHORT use_short_slot_time;
+} CMD_RTPRIV_IOCTL_80211_BSS_PARM;
+
+
+typedef struct __CMD_RTPRIV_IOCTL_80211_BEACON {
+        UCHAR* beacon;
+        ULONG beacon_len;
+        UINT32 interval;
+} CMD_RTPRIV_IOCTL_80211_BEACON;
 #endif /* RT_CFG80211_SUPPORT */
 
 /* station commands */

@@ -64,7 +64,7 @@ typedef	union GNU_PACKED _TXWI_STRUC {
 	struct _TXWI_OMAC TXWI_O;
 #endif /* RTMP_MAC */
 	UINT32 word;
-}TXWI_STRUC;
+} TXWI_STRUC,*PTXWI_STRUC;
 
 
 #define TXINFO_SIZE			4
