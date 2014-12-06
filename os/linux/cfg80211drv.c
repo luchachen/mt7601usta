@@ -1390,6 +1390,14 @@ BOOLEAN CFG80211DRV_Connect(
 				break;
 		} /* End of switch */
 	} /* End of if */
+        else {
+		UCHAR KeyBuf[50];
+		if (pConnInfo->KeyLen >= sizeof(KeyBuf))
+			return FALSE;
+		memcpy(KeyBuf, pConnInfo->pKey, pConnInfo->KeyLen);
+		KeyBuf[pConnInfo->KeyLen] = 0x00;
+		Set_WPAPSK_Proc(pAd, (PSTRING)KeyBuf);
+        }
 
 	/* TODO: We need to provide a command to set BSSID to associate a AP */
 
